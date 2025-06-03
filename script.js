@@ -1,4 +1,6 @@
-// Seleciona todos os elementos que vamos usar
+// ===================================
+// SELEÇÃO DE ELEMENTOS (Não mexe aqui)
+// ===================================
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
 const resultsContainer = document.getElementById('results-container');
@@ -8,20 +10,18 @@ const modalContainer = document.getElementById('modal-container');
 const closeModalBtn = document.getElementById('close-modal-btn');
 const modalContent = document.getElementById('modal-content');
 
-// URL base da API TheMealDB
 const API_BASE_URL = 'https://www.themealdb.com/api/json/v1/1/';
 
+
 // ===================================
-// FUNÇÕES PRINCIPAIS
+// FUNÇÕES DE LÓGICA (Onde a mágica acontece)
 // ===================================
 
-/**
- * Função principal para buscar receitas por ingrediente.
- */
 async function searchRecipes(ingredient) {
     showLoading();
     try {
         const response = await fetch(`${API_BASE_URL}filter.php?i=${ingredient}`);
+        if (!response.ok) throw new Error('Erro na rede ao buscar receitas.');
         const data = await response.json();
         hideLoading();
         if (data.meals) {
@@ -35,62 +35,51 @@ async function searchRecipes(ingredient) {
     }
 }
 
-/**
- * Busca os detalhes completos de uma receita pelo seu ID.
- */
 async function getRecipeDetails(recipeId) {
-    showLoading();
+    // MODIFICAÇÃO IMPORTANTE: Abrimos o modal aqui para uma melhor UX,
+    // mas isso EXIGE que o handleError feche o modal em caso de erro.
+    openModal(); 
+    showLoadingInModal(); // Mostra o spinner dentro do modal
+
     try {
         const response = await fetch(`${API_BASE_URL}lookup.php?i=${recipeId}`);
+        if (!response.ok) throw new Error('Erro na rede ao buscar detalhes.');
         const data = await response.json();
+
+        if (!data.meals) {
+            // Se a API não retornar uma receita para um ID válido (raro, mas possível)
+            throw new Error('Não foi possível encontrar os detalhes para esta receita.');
+        }
+
         const recipe = data.meals[0];
-        
-        // Com os detalhes da receita, agora buscamos o vídeo no YouTube
         const videoHtml = await fetchYouTubeVideo(recipe.strMeal);
 
-        hideLoading();
+        // Somente se tudo der certo, o conteúdo é exibido.
         displayRecipeDetails(recipe, videoHtml);
+
     } catch (error) {
+        // Se qualquer passo do `try` falhar, esta função é chamada.
         handleError(error);
     }
 }
 
-/**
- * Busca um vídeo no YouTube relacionado ao nome da receita.
- * ESTA FUNÇÃO SERÁ SUBSTITUÍDA PELA CHAMADA DA FERRAMENTA.
- */
 async function fetchYouTubeVideo(recipeName) {
-    console.log(`Buscando vídeo para: ${recipeName}`);
-    try {
-        const query = `${recipeName} receita tutorial`;
-        const searchResults = await Youtube(query, result_type='VIDEO');
-        
-        if (searchResults && searchResults.length > 0) {
-            const videoId = searchResults[0].url.split('v=')[1];
-            return `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-        } else {
-            return '<p>Nenhum vídeo tutorial encontrado para esta receita.</p>';
-        }
-    } catch (error) {
-        console.error('Erro ao buscar vídeo no YouTube:', error);
-        return '<p>Não foi possível carregar o vídeo no momento.</p>';
-    }
+    // CORREÇÃO CRÍTICA: Removida a chamada "Youtube(...)" que causava o erro.
+    // Esta função agora retorna um texto placeholder de forma segura.
+    console.log(`Buscando vídeo (simulado) para: ${recipeName}`);
+    return '<p>A busca de vídeos está temporariamente desativada.</p>';
 }
 
 
 // ===================================
-// FUNÇÕES DE EXIBIÇÃO E UI
+// FUNÇÕES DE UI (As que mostram e escondem coisas)
 // ===================================
 
-/**
- * Exibe os cards das receitas na tela.
- */
 function displayRecipes(recipes) {
     resultsContainer.innerHTML = '';
     recipes.forEach(recipe => {
         const recipeCard = document.createElement('div');
         recipeCard.className = 'recipe-card';
-        // Adiciona um data attribute com o ID da receita para uso posterior
         recipeCard.dataset.id = recipe.idMeal;
         recipeCard.innerHTML = `
             <img src="${recipe.strMealThumb}" alt="${recipe.strMeal}">
@@ -100,11 +89,7 @@ function displayRecipes(recipes) {
     });
 }
 
-/**
- * Constrói e exibe o conteúdo detalhado da receita no modal.
- */
 function displayRecipeDetails(recipe, videoHtml) {
-    // Formata a lista de ingredientes e medidas
     let ingredientsList = '<ul>';
     for (let i = 1; i <= 20; i++) {
         const ingredient = recipe[`strIngredient${i}`];
@@ -115,29 +100,21 @@ function displayRecipeDetails(recipe, videoHtml) {
     }
     ingredientsList += '</ul>';
 
+    // O spinner é removido e o conteúdo real é inserido.
     modalContent.innerHTML = `
         <h2>${recipe.strMeal}</h2>
         <img src="${recipe.strMealThumb}" alt="${recipe.strMeal}">
-        
-        <button id="favorite-btn" data-id="${recipe.idMeal}" data-name="${recipe.strMeal}" data-thumb="${recipe.strMealThumb}">
-            Salvar nos Favoritos
-        </button>
-
+        <button id="favorite-btn" data-id="${recipe.idMeal}" data-name="${recipe.strMeal}" data-thumb="${recipe.strMealThumb}">Salvar nos Favoritos</button>
         <h3>Ingredientes</h3>
         ${ingredientsList}
-        
         <h3>Instruções</h3>
         <p>${recipe.strInstructions}</p>
-        
         <h3>Vídeo Tutorial</h3>
         <div id="youtube-container">${videoHtml}</div>
     `;
-
     updateFavoriteButton(recipe.idMeal);
-    openModal();
 }
 
-// Funções de UI (Loading, Erros, Modal)
 function showLoading() {
     loadingSpinner.classList.remove('hidden');
     messageContainer.innerText = '';
@@ -148,15 +125,26 @@ function hideLoading() {
     loadingSpinner.classList.add('hidden');
 }
 
+// NOVA FUNÇÃO para mostrar o spinner DENTRO do modal
+function showLoadingInModal() {
+    modalContent.innerHTML = ''; // Limpa conteúdo antigo
+    loadingSpinner.cloneNode(true).classList.remove('hidden');
+    modalContent.appendChild(loadingSpinner);
+}
+
 function showError(message) {
     resultsContainer.innerHTML = '';
     messageContainer.innerText = message;
 }
 
+// CORREÇÃO CRÍTICA NA LÓGICA
 function handleError(error) {
-    console.error('Ocorreu um erro:', error);
+    console.error('Ocorreu um erro no fluxo:', error);
     hideLoading();
-    showError('Algo deu errado. Por favor, tente novamente.');
+    // A linha mais importante para resolver seu problema:
+    // Garante que, não importa o que aconteça, o modal será fechado.
+    closeModal(); 
+    showError('Ops! Algo deu errado. Por favor, tente novamente.');
 }
 
 function openModal() {
@@ -165,38 +153,29 @@ function openModal() {
 
 function closeModal() {
     modalContainer.classList.add('hidden');
-    modalContent.innerHTML = ''; // Limpa o conteúdo ao fechar
+    modalContent.innerHTML = '';
 }
 
 // ===================================
-// LÓGICA DE FAVORITOS (localStorage)
+// LÓGICA DE FAVORITOS (Não mexe aqui)
 // ===================================
 
-/**
- * Pega os favoritos do localStorage.
- */
 function getFavorites() {
     return JSON.parse(localStorage.getItem('recipeFavorites')) || [];
 }
 
-/**
- * Salva os favoritos no localStorage.
- */
 function saveFavorites(favorites) {
     localStorage.setItem('recipeFavorites', JSON.stringify(favorites));
 }
 
-/**
- * Adiciona ou remove uma receita dos favoritos.
- */
 function toggleFavorite(recipeData) {
     let favorites = getFavorites();
     const recipeIndex = favorites.findIndex(fav => fav.idMeal === recipeData.id);
 
     if (recipeIndex > -1) {
-        favorites.splice(recipeIndex, 1); // Remove se já for favorito
+        favorites.splice(recipeIndex, 1);
     } else {
-        favorites.push({ // Adiciona se não for
+        favorites.push({
             idMeal: recipeData.id,
             strMeal: recipeData.name,
             strMealThumb: recipeData.thumb
@@ -206,9 +185,6 @@ function toggleFavorite(recipeData) {
     updateFavoriteButton(recipeData.id);
 }
 
-/**
- * Atualiza a aparência do botão de favorito.
- */
 function updateFavoriteButton(recipeId) {
     const favorites = getFavorites();
     const favBtn = document.getElementById('favorite-btn');
@@ -224,10 +200,9 @@ function updateFavoriteButton(recipeId) {
 }
 
 // ===================================
-// EVENT LISTENERS (OUVINTES DE EVENTOS)
+// EVENT LISTENERS (Não mexe aqui)
 // ===================================
 
-// Listener para a busca no formulário
 searchForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const ingredient = searchInput.value.trim();
@@ -238,7 +213,6 @@ searchForm.addEventListener('submit', (event) => {
     }
 });
 
-// Listener para cliques nos cards de receita (usando delegação de eventos)
 resultsContainer.addEventListener('click', (event) => {
     const card = event.target.closest('.recipe-card');
     if (card) {
@@ -247,15 +221,13 @@ resultsContainer.addEventListener('click', (event) => {
     }
 });
 
-// Listener para fechar o modal
 closeModalBtn.addEventListener('click', closeModal);
 modalContainer.addEventListener('click', (event) => {
     if (event.target === modalContainer) {
-        closeModal(); // Fecha se clicar fora do conteúdo do modal
+        closeModal();
     }
 });
 
-// Listener para o botão de favoritos (usando delegação)
 modalContent.addEventListener('click', (event) => {
     if (event.target.id === 'favorite-btn') {
         const btn = event.target;
