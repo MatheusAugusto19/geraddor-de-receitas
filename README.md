@@ -2,11 +2,13 @@
 
 Um aplicativo web interativo que permite aos usuários encontrar receitas a partir de um ingrediente, visualizar detalhes completos e assistir a um tutorial em vídeo relevante do YouTube.
 
-
-*Aqui, coloque um screenshot ou, melhor ainda, um GIF animado da sua aplicação em uso. Grave sua tela usando uma ferramenta como ScreenToGif ou Giphy Capture e arraste o arquivo para dentro desta caixa de texto no GitHub.*
-
 ### ✨ [Acesse a aplicação aqui!](https://MatheusAugusto19.github.io/gerador-de-receitas/)
 
+---
+
+## Demonstração
+
+![Demonstração do App](https://github.com/MatheusAugusto19/gerador-de-receitas/assets/12345/exemplo.gif) 
 ---
 
 ## 🚀 Funcionalidades
@@ -29,7 +31,7 @@ Um aplicativo web interativo que permite aos usuários encontrar receitas a part
   - [TheMealDB API](https://www.themealdb.com/api.php) para os dados das receitas.
   - Ferramenta de busca do YouTube.
 - **Armazenamento:** `localStorage` do navegador para o sistema de favoritos.
-- **Deploy:** [Netlify](https://www.netlify.com/)
+- **Deploy:** [GitHub Pages](https://pages.github.com/)
 
 ---
 
@@ -47,7 +49,7 @@ Isso me ensinou a importância de estruturar o código de forma modular e a trat
 
 ## 👨‍💻 Autor
 
-Feito por **[Seu Nome]**
+Feito por **Matheus Augusto**
 
-- **LinkedIn:** [https://www.linkedin.com/in/seu-usuario/](https://www.linkedin.com/in/seu-usuario/)
-- **GitHub:** [https://github.com/seu-usuario](https://github.com/seu-usuario)
+- **LinkedIn:** [https://www.linkedin.com/in/seu-usuario-do-linkedin/](https://www.linkedin.com/in/seu-usuario-do-linkedin/)
+- **GitHub:** [https://github.com/MatheusAugusto19](https://github.com/MatheusAugusto19)
