@@ -14,7 +14,7 @@ Um aplicativo web interativo que permite aos usuários encontrar receitas a part
 
 *Aqui, coloque um screenshot ou, melhor ainda, um GIF animado da sua aplicação em uso. Grave sua tela usando uma ferramenta como ScreenToGif ou Giphy Capture e arraste o arquivo para dentro desta caixa de texto no GitHub.*
 
-![Demonstração do App](link_para_sua_imagem_ou_gif.gif)
+### ✨ [Acesse a aplicação aqui!](https://MatheusAugusto19.github.io/gerador-de-receitas/)
 
 ---
 
