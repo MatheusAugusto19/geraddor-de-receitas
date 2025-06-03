@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>MasterChef Finder 🍳</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>MasterChef Finder 🍳</h1>
+            <p>Encontre receitas deliciosas e assista a um tutorial em vídeo.</p>
+        </header>
+
+    <div class="search-container">
+        <form id="search-form">
+            <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Digite um ingrediente (ex: chicken, eggs)"
+        />
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+
+        <div id="message-container"></div>
+        <div id="loading-spinner" class="hidden"></div>
+
+        <main id="results-container">
+            </main>
+    </div>
+
+    <div id="modal-container" class="hidden">
+        <div id="modal">
+            <button id="close-modal-btn" aria-label="Fechar modal">&times;</button>
+            <div id="modal-content">
+                </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
